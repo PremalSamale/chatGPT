@@ -1,0 +1,259 @@
+RUCKUS One Supported ICX Switches are ICX 7150, ICX 7550, ICX 7650, ICX 7850, ICX 8200 
+Indoor Access Points
+H550
+R850 
+R760
+R750
+R650
+R560
+R550
+R350
+
+End of Sale Products
+H510
+H320
+M510
+R730
+R720
+R710
+R610
+R600
+R510
+R500
+R320
+R310
+
+Introduction to MSP & VAR Concepts
+Business Entities
+The following table describes the type of businesses (aka organizations) that use these API endpoints. Not all endpoints are useful for every business entity.
+Abbreviation	Description
+REC	RUCKUS end customer. RUCKUS end customers use API endpoints to manage their own account and networks.
+VAR	
+Value-added reseller. VARs can manage the account (including networks) of specific RECs. In order for a VAR to manage an REC’s account, the REC must first invite the VAR to manage their account and the VAR must accept the invitation. A successful invitation and acceptance process is modeled by a delegation resource. API endpoints in the ”Delegation” API group are used to manage these delegations.
+
+In order for a VAR to manage (configure and monitor) an REC’s account using API endpoints, the VAR’s API client must log into their own account and then identify the tenant they are acting on by providing the “x-rks-tenantid” to identify the tenant. All API calls will need to include the JWT and the customer header.
+
+When a VAR is managing an REC’s network, the VAR may need to install devices in that network on behalf of the REC. Entitlements which the REC has purchased and activated are used for this purpose.
+
+VAR accounts can have their own networks, just like an REC has its own networks. API endpoints can be used to manage the VAR’s account (including networks) in the same way endpoints are used to manage an REC’s account. A VAR must have their own entitlements to install devices in their own network.
+
+MSP	
+Managed service provider. MSPs have their own customers, referred to as MSP-ECs, which are not known to RUCKUS. MSPs manage the accounts (including networks) of all their MSP-ECs. MSP-ECs and the resources that represent them are “created” by an MSP. These resources are not visible to any other business entity. MSPs use the endpoints defined in “MSP Services” to configure and brand their business as well as to create and manage MSP-EC resources.
+
+Note that MSP to MSP-EC relationships are modeled as a delegation resource (as is done for VARs and RECs). However, MSP to MSP-EC delegation resources are created automatically, requiring no action on the part of an MSP-EC. Moreover, an MSP to MSP-EC delegation cannot be revoked by the MSP-EC.
+
+In order for an MSP to manage (configure and monitor) an MSP-EC’s account using API endpoints, the MSP’s API client must obtain an API token for that MSP-EC; an endpoint in the “Manage API Client Authentication” group is used for this purpose (refer to Platform APIs and Model Documentation).
+
+MSPs use MSP entitlements (aka bulk licenses) to enable the installation of networking devices in MSP-EC networks. In order to install a networking device, one or more MSP entitlements are assigned to an MSP-EC; this action creates an assignment resource. Once assignment resources are created, devices can be installed. MSP API clients use the endpoints in the “MSP Entitlement“ API group to manage their MSP entitlements and assignments.
+
+MSP accounts can have their own networks, just like an REC has its own networks. API endpoints can be used to manage the MSP’s account (including networks) in the same way endpoints are used to manage an REC’s account. Note that entitlements (that is, not MSP entitlements) purchased by the MSP are used to install devices in their own networks.
+
+MSP-EC	MSPs end customer. MSP-ECs can use API endpoints to manage their own networks, if permitted by their MSP.
+Entitlements/Licenses
+Entitlements (aka licenses) are purchased by an account holder and entitle that account to install networking devices in their venues. After purchase, entitlements must be “activated” using the RUCKUS Support website before becoming effective for device installation. There are two classes of entitlements:
+Device entitlements, simply referred to as “entitlements”, which entitle an account to provision/install one networking device per entitlement.
+MSP entitlements, used only by MSPs, are assigned to MSP-EC accounts, enabling the provision/installation of one networking device per assignment in an MSP-EC network.
+
+
+RUCKUS Cloud Required Changes and Migrating to RUCKUS One API's
+RUCKUS Cloud Required Changes
+The existing RUCKUS Cloud REST APIs have some changes related to the migration to RUCKUS One:
+JSON Web Tokens (JWTs) are used to secure all endpoints in RUCKUS One. The login API's can be access through your existing API domain.
+Many of the existing APIs will continue to work with API forwarding. In these cases, the deprecated URLs will continue to work for a limited amount of time. It is suggested that you transition these URLs as soon as possible.
+A certain number of endpoints have changed substantively and are not backward compatible, nor do they support API forwarding. These APIs will require changes by the API consumers.
+The changes and mapping between RUCKUS Cloud APIs and RUCKUS One API's are detailed the following table.
+Current RUCKUS Cloud documentation can be found at RUCKUS Cloud API Documentation
+Migration Overview
+The RUCKUS One REST APIs have some substantive changes:
+JSON Web Tokens (JWTs) are used to secure all endpoints in RUCKUS One. See the login information section, and the login API for more detailed information. Once you have migrated to RUCKUS One, the cookie with the API key will no longer work for RUCKUS Cloud APIs or RUCKUS One APIs.
+The new RUCKUS One API's are found at the api domain.
+RUCKUS Cloud API Breaking Changes
+URL	Method	Breaking changes and remediation
+/api/tenant/:tenantId	PUT	Async Response with no "tenant_id" in the Response body.
+Remedy Steps:
+1. Read the "requestId" from the response 
+2. Poll the activity service with the requestId and wait for SUCCESS using GET /api/tenant/{tenantId}/activity/{requestId}
+3. GET/api/tenant/:tenantId - GET the updated tenant details
+/api/tenant/:tenantId/notification-recipient	POST	Async Response with no "tenant_id" in the Response body.
+Remedy Steps:
+1. Read the "requestId" from the response 
+2. Poll the activity service with the requestId and wait for SUCCESS using GET /api/tenant/{tenantId}/activity/{requestId}
+3. GET /api/tenant/:tenantId/notification-recipient - Get the added notification recipient
+/api/tenant/:tenantId/notification-recipient	DELETE	Async Response with no "tenant_id" in the Response body.
+Remedy Steps:
+1. Read the "requestId" from the response 
+2. Poll the activity service with the requestId and wait for SUCCESS using GET /api/tenant/{tenantId}/activity/{requestId} 
+/api/tenant/:tenantId/notification-recipient/:notificationRecipientId	PUT	Async Response with no "tenant_id" in the Response body.
+Remedy Steps:
+1. Read the "requestId" from the response 
+2. Poll the activity service with the requestId and wait for SUCCESS using GET /api/tenant/{tenantId}/activity/{requestId}
+3. GET /api/tenant/:tenantId/notification-recipient/:notificationRecipientId - Get the updated notification values
+/api/tenant/:tenantId/notification-recipient/:notificationRecipientId	DELETE	Async Response with no "tenant_id" in the Response body.
+Remedy Steps:
+1. Read the "requestId" from the response 
+2. Poll the activity service with the requestId and wait for SUCCESS using GET /api/tenant/{tenantId}/activity/{requestId} 
+/api/tenant/:tenantId/delegation	POST	Async Response with no "tenant_id" in the Response body.
+Remedy Steps:
+1. Read the "requestId" from the response 
+2. Poll the activity service with the requestId and wait for SUCCESS using GET /api/tenant/{tenantId}/activity/{requestId}
+3. GET /api/tenant/:tenantId/delegation - Get the added delegation values
+/api/tenant/:tenantId/delegation/:delegationId	PUT	Async Response with no "tenant_id" in the Response body.
+Remedy Steps:
+1. Read the "requestId" from the response 
+2. Poll the activity service with the requestId and wait for SUCCESS using GET /api/tenant/{tenantId}/activity/{requestId}
+3. GET /api/tenant/:tenantId/delegation/:delegationId - Get the updated delegation value 
+/api/tenant/:tenantId/delegation/:delegationId	DELETE	Async Response with no "tenant_id" in the Response body.
+Remedy Steps:
+1. Read the "requestId" from the response 
+2. Poll the activity service with the requestId and wait for SUCCESS using GET /api/tenant/{tenantId}/activity/{requestId} 
+/api/tenant/:tenantId/delegation/support	POST	Async Response with no "tenant_id" in the Response body.
+Remedy Steps:
+1. Read the "requestId" from the response 
+2. Poll the activity service with the requestId and wait for SUCCESS using GET /api/tenant/{tenantId}/activity/{requestId}
+3. GET /api/tenant/:tenantId/delegation/ - Get the created delegations
+/api/tenant/:tenantId/admin	POST	Async Response with no "tenant_id" in the Response body.
+Remedy Steps:
+1. Read the "requestId" from the response 
+2. Poll the activity service with the requestId and wait for SUCCESS using GET /api/tenant/{tenantId}/activity/{requestId}
+3. GET /api/tenant/:tenantId/admin - Get the newly added admin
+/api/tenant/:tenantId/admin	PUT	Async Response with no "tenant_id" in the Response body.
+Remedy Steps:
+1. Read the "requestId" from the response 
+2. Poll the activity service with the requestId and wait for SUCCESS using GET /api/tenant/{tenantId}/activity/{requestId}
+3. GET /api/tenant/:tenantId/admin - Get the updated  admin
+/api/tenant/:tenantId/admin	DELETE	Async Response with no "tenant_id" in the Response body.
+Remedy Steps:
+1. Read the "requestId" from the response 
+2. Poll the activity service with the requestId and wait for SUCCESS using GET /api/tenant/{tenantId}/activity/{requestId} 
+/api/tenant/:tenantId/admin/{adminId}	DELETE	Async Response with no "tenant_id" in the Response body.
+Remedy Steps:
+1. Read the "requestId" from the response 
+2. Poll the activity service with the requestId and wait for SUCCESS using GET /api/tenant/{tenantId}/activity/{requestId} 
+/api/mspservice/tenant/{mspTenantId}/mspecaccounts	POST	Changes:
+1. Request payload change.
+2. Async with Response code 202 with no "tenant_id" in the Response body.
+Remedy Steps:
+1. Read the "requestId" from the response 
+2. Poll the activity service with the requestId and wait for SUCCESS using GET /api/tenant/{mspTenantId}/activity/{requestId}
+3. GET /api/mspservice/tenant/{mspTenantId}/mspecaccounts - Gives the list of mspecaccounts, and will include the new account that was created.
+4. Look for the newly created tenant in the list. As you are aware, the email ID is unique and can be used for filtering.
+
+Request Payload change:
+{
+    "tenant_type": "MSP_EC",
+    "name": "testCustomer",
+    "street_address": "350 W Java Dr, Sunnyvale, CA 94089, USA",
+    "service_effective_date": "2023-03-31 02:17:08Z",
+    "service_expiration_date": "2023-04-30 02:16:20Z",
+    "admin_email": "testCustomer@mail.com",
+    "admin_firstname": "test",
+    "admin_lastname": "Customer",
+    "admin_role": "PRIME_ADMIN",
+    "admin_delegations": [
+        {
+            "msp_admin_id": "747ca061c20f4c96b0e549567e265474",
+            "msp_admin_role": "PRIME_ADMIN"
+        }
+    ],
+    "licenses": {
+        "assignments": [
+            {
+                "quantity": 1,
+                "action": "ADD",
+                "isTrial": false,
+                "deviceType": "MSP_WIFI"
+            },
+            {
+                "quantity": 1,
+                "action": "ADD",
+                "isTrial": false,
+                "deviceType": "MSP_SWITCH"
+            }
+        ]
+    }
+}
+
+/api/mspservice/tenant/{mspEcTenantId}	DELETE	Async and Response code 202
+Remedy Steps:
+1. Read the "requestId" from the response 
+2. Poll the activity service with the requestId and wait for SUCCESS using GET /api/tenant/{mspTenantId}/activity/{requestId}
+3. GET /api/mspservice/tenant/{mspEcTenantId} - Does not give any data
+/api/mspservice/tenant/{mspEcTenantId}	PUT	Async and Response code 202
+Remedy Steps:
+1. Read the "requestId" from the response 
+2. Poll the activity service with the requestId and wait for SUCCESS using GET /api/tenant/{mspTenantId}/activity/{requestId}
+3. GET /api/mspservice/tenant/{mspEcTenantId} - Returns the udpated data
+/api/mspservice/tenant/{mspEcTenantId}/deactivation	POST	
+Remedy Steps:
+1. Read the "requestId" from the response 
+2. Poll the activity service with the requestId and wait for SUCCESS using GET /api/tenant/{mspTenantId}/activity/{requestId}
+3. GET /api/mspservice/tenant/{mspEcTenantId} - Returns the udpated data
+/api/mspservice/tenant/{mspEcTenantId}/reactivation	POST	
+Remedy Steps:
+1. Read the "requestId" from the response 
+2. Poll the activity service with the requestId and wait for SUCCESS using GET /api/tenant/{mspTenantId}/activity/{requestId}
+3. GET /api/mspservice/tenant/{mspEcTenantId} - Returns the udpated data
+/api/mspservice/tenant/{mspTenantId}/msplabel	POST	Async and Response code 202
+Remedy Steps:
+1. Read the "requestId" from the response 
+2. Poll the activity service with the requestId and wait for SUCCESS using GET /api/tenant/{mspTenantId}/activity/{requestId}
+3. GET /api/mspservice/tenant/{mspTenantId}/msplabel - Returns the new created msplabel data
+/api/mspservice/tenant/{mspTenantId}/msplabel	PUT	Async and Response code 202
+Remedy Steps:
+1. Read the "requestId" from the response 
+2. Poll the activity service with the requestId and wait for SUCCESS using GET /api/tenant/{mspTenantId}/activity/{requestId}
+3. GET /api/mspservice/tenant/{mspTenantId}/msplabel - Returns the updated msplabel data
+/api/mspservice/tenant/{mspEcTenantId}/delegatedmspadmins	PUT	Async and Response code 202
+Remedy Steps:
+1. Read the "requestId" from the response 
+2. Poll the activity service with the requestId and wait for SUCCESS using GET /api/tenant/{mspTenantId}/activity/{requestId}
+3. GET /api/mspservice/tenant/{mspEcTenantId}/delegatedmspadmins - Returns the delegatedmspadmins list
+/api/mspservice/tenant/{mspEcTenantId}/delegation/assignedmspadmin	PUT	Async and Response code 202
+Remedy Steps:
+1. Read the ""requestId"" from the response 
+2. Poll the activity service with the requestId and wait for SUCCESS using GET /api/tenant/{mspTenantId}/activity/{requestId}
+3. GET /api/mspservice/tenant/assign/{mspEcDelegatedToId} - Returns the delegatedmspadmins list"
+/api/switch/tenant/{tenantId}/switch/{serialNumber}/dhcpServer	POST	Use Mac Address to replace the serialNumber
+/api/switch/tenant/{tenantId}/switch/{serialNumber}/dhcpServer	PUT	Use Mac Address to replace the serialNumber
+/api/switch/tenant/{tenantId}/switch/{serialNumber}/dhcpServer/{dhcpServerId}	DELETE	Use Mac Address to replace the serialNumber
+/api/switch/tenant/{tenantId}/switch/{serialNumber}/dhcpServers	DELETE	Use Mac Address to replace the serialNumber
+/api/switch/tenant/{tenantId}/switch/{serialNumber}/dhcpServer/query	POST	Use Mac Address to replace the serialNumber
+/api/switch/tenant/{tenantId}/switch/{serialNumber}/dhcpServer/state	POST	Use Mac Address to replace the serialNumber
+/api/switch/tenant/{tenantId}/switch/{serialNumber}	GET	Use Mac Address to replace the serialNumber
+/api/switch/tenant/{tenantId}/switch/{serialNumber}/reboot	POST	Use Mac Address to replace the serialNumber
+/api/switch/tenant/{tenantId}/switch/{serialNumber}/upgrade	POST	Use Mac Address to replace the serialNumber
+/api/switch/tenant/{tenantId}/switch/{serialNumber}/sync	POST	Use Mac Address to replace the serialNumber
+/api/switch/tenant/{tenantId}/aclUnion/switch/{serialNumber}	GET	Use Mac Address to replace the serialNumber
+/api/switch/tenant/{tenantId}/acls/switch/{serialNumber}	GET	Use Mac Address to replace the serialNumber
+/api/switch/tenant/{tenantId}/vlanUnion/switch/{serialNumber}	GET	Use Mac Address to replace the serialNumber
+/api/switch/tenant/{tenantId}/vlans/switch/{serialNumber}	POST	Use Mac Address to replace the serialNumber
+/api/switch/tenant/{tenantId}/vlans/switch/{serialNumber}/query	GET	Use Mac Address to replace the serialNumber
+/api/switch/tenant/{tenantId}/vePort/switch/{serialNumber}	GET	Use Mac Address to replace the serialNumber
+/api/switch/tenant/{tenantId}/vePorts/switch/{serialNumber}	POST	Use Mac Address to replace the serialNumber
+/api/switch/tenant/{tenantId}/lag/switch/{serialNumber}	GET	Use Mac Address to replace the serialNumber
+/api/switch/tenant/{tenantId}/lags/switch/{serialNumber}	POST	Use Mac Address to replace the serialNumber
+/api/switch/tenant/{tenantId}/configBackup/switch/{serialNumber}	GET	Use Mac Address to replace the serialNumber
+/api/switch/tenant/{tenantId}/configBackup/switch/{serialNumber}	POST	Use Mac Address to replace the serialNumber
+/api/switch/tenant/{tenantId}/stack/switch/{serialNumber}	GET	Use Mac Address to replace the serialNumber
+/api/switch/tenant/{tenantId}/vlanVePort/{venueId}/switch/{serialNumber}	GET	Use Mac Address to replace the serialNumber
+/api/switch/tenant/{tenantId}/port/switch/{serialNumber}	GET	Use Mac Address to replace the serialNumber
+/api/switch/tenant/{tenantId}/port/switch/{serialNumber}	PUT	Use Mac Address to replace the serialNumber
+/api/switch/tenant/{tenantId}/port/switch/{serialNumber}/ports	POST	Use Mac Address to replace the serialNumber
+/api/switch/tenant/{tenantId}/port/switch/{serialNumber}	GET	Use Mac Address to replace the serialNumber
+/api/switch/tenant/{tenantId}/port/switches/ports	POST	Use Mac Address to replace the serialNumber in request payload
+/api/switch/tenant/{tenantId}/port/switches	PUT	Use Mac Address to replace the serialNumber in request payload
+/api/switch/tenant/{tenantId}/port/switch/{serialNumber}/portId/{unitN	GET	Use Mac Address to replace the serialNumber
+/api/switch/tenant/{tenantId}/staticRoute/switch/{serialNumber}	GET	Use Mac Address to replace the serialNumber
+/api/switch/tenant/{tenantId}/staticRoute/switch/{serialNumber}	POST	Use Mac Address to replace the serialNumber
+/api/switch/tenant/{tenantId}/cli-template	POST	Use Mac Address to replace the serialNumber in request payload
+/api/switch/tenant/{tenantId}/cli-template	PUT	Use Mac Address to replace the serialNumber in request payload
+/api/switch/tenant/{tenantId}/switches/{id}/configurationHistory/detail/	POST	Use Mac Address as id
+/api/switch/tenant/{tenantId}/switches/{id}/configurationHistory/detail/	POST	Use Mac Address as id
+/api/tenant/{tenantId}/wifi/guest-user	POST	Impact the id (UUID format change) for API Response
+original format: c34f27f384554e849f144225b5defa09
+New format: c34f27f3-8455-4e84-9f14-4225b5defa09 (UUID Standard)
+https://en.wikipedia.org/wiki/Universally_unique_identifier
+/api/tenant/{tenantId}/wifi/guest-user/{guestUserId}/regenerate	POST	Impact the id (UUID format change) for API Response
+/api/tenant/{tenantId}/wifi/guest-user/{guestUserId}	GET	Impact the id (UUID format change) for API Response
+/api/tenant/{tenantId}/wifi/guest-user	GET	Impact the id (UUID format change) for API Response
+/api/tenant/{tenantId}/wifi/guest-user/import	POST	Impact the id (UUID format change) for API Response
